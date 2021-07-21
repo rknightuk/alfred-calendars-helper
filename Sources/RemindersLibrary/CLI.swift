@@ -3,53 +3,31 @@ import Foundation
 
 private let reminders = Reminders()
 
-private struct ShowLists: ParsableCommand {
+private struct Events: ParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "Print the name of lists to pass to other commands")
-
-    func run() {
-        reminders.showLists()
-    }
-}
-
-private struct Upcoming: ParsableCommand {
-    static let configuration = CommandConfiguration(
-        abstract: "Show upcoming reminders")
-
-    func run() {
-        reminders.showUpcoming()
-    }
-}
-
-private struct Show: ParsableCommand {
-    static let configuration = CommandConfiguration(
-        abstract: "Print the items on the given list")
+        abstract: "Show upcoming events")
 
     @Argument(
-        help: "The list to print items from, see 'show-lists' for names")
-    var listName: String
+        help: "The calendar to show events from")
+    var listName: String?
 
     func run() {
-        reminders.showListItems(withName: self.listName)
+        reminders.events(listName: self.listName)
     }
 }
 
-private struct Anytime: ParsableCommand {
+private struct Calendars: ParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "Print the anytime items on the given list")
-
-    @Argument(
-        help: "The list to print items from, see 'show-lists' for names")
-    var listName: String
+        abstract: "Show all calendars")
 
     func run() {
-        reminders.showAnytimeListItems(withName: self.listName)
+        reminders.showCalendars()
     }
 }
 
 private struct Add: ParsableCommand {
     static let configuration = CommandConfiguration(
-        abstract: "Add a reminder to a list")
+        abstract: "Add a event to a calendar")
 
     @Argument(
         help: "The list to add to, see 'show-lists' for names")
@@ -73,38 +51,14 @@ private struct Add: ParsableCommand {
     }
 }
 
-private struct Complete: ParsableCommand {
-    static let configuration = CommandConfiguration(
-        abstract: "Complete a reminder")
-
-    @Argument(
-        help: "The list to complete a reminder on, see 'show-lists' for names")
-    var listName: String
-
-    @Argument(
-        help: "The index of the reminder to complete, see 'show' for indexes")
-    var index: Int
-
-    @Argument(
-        help: "Complete an anytime reminder")
-    var anytime: Bool?
-
-    func run() {
-        reminders.complete(itemAtIndex: self.index, onListNamed: self.listName, anytime: self.anytime)
-    }
-}
-
 public struct CLI: ParsableCommand {
     public static let configuration = CommandConfiguration(
         commandName: "reminders",
         abstract: "Interact with macOS Reminders from the command line",
         subcommands: [
             Add.self,
-            Complete.self,
-            Show.self,
-            ShowLists.self,
-            Upcoming.self,
-            Anytime.self,
+            Events.self,
+            Calendars.self,
         ]
     )
 
