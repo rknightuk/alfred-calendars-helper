@@ -3,12 +3,6 @@ import Foundation
 
 private let Store = EKEventStore()
 private let dateFormatter = DateFormatter()
-private func formattedDueDate(from reminder: EKReminder) -> String? {
-    if reminder.dueDateComponents == nil { return "" }
-    let dateformat = DateFormatter()
-    dateformat.dateFormat = "yyyy-MM-dd HH:mm"
-    return dateformat.string(from: reminder.dueDateComponents!.date ?? Date())
-}
 
 private func formattedDueDateEvent(from date: Date) -> String? {
     let dateformat = DateFormatter()
@@ -16,12 +10,7 @@ private func formattedDueDateEvent(from date: Date) -> String? {
     return dateformat.string(from: date)
 }
 
-private func format(_ reminder: EKReminder, at index: Int) -> String {
-    let dateString = formattedDueDate(from: reminder).map { "\($0)" } ?? ""
-    return "{ \"id\": \"\(index)\", \"title\": \"\(reminder.title ?? "?")\", \"date\": \"\(dateString)\", \"list\": \"\(reminder.calendar.title)\" }"
-}
-
-private func formatEvent(_ event: EKEvent) -> String {
+private func format(_ event: EKEvent) -> String {
     let start = formattedDueDateEvent(from: event.startDate).map { "\($0)" } ?? ""
     let end = formattedDueDateEvent(from: event.endDate).map { "\($0)" } ?? ""
     let location = event.structuredLocation == nil ? "" : event.structuredLocation!.title!
@@ -61,43 +50,37 @@ public final class Reminders {
         let events = Store.events(matching: predicate)
 
         for event in events {
-            print(formatEvent(event))
+            print(format(event))
             semaphore.signal()
         }
 
         semaphore.wait()
     }
 
-    func addReminder(string: String, toListNamed name: String, dueDate: DateComponents?) {
+    func addEvent(string: String, toListNamed name: String, startDate: String, endDate: String?, location: String?) {
+        let dateformat = DateFormatter()
+        dateformat.dateFormat = "yyyy-MM-dd HH:mm"
+        let start = dateformat.date(from: startDate)
+        let end = endDate != nil ? dateformat.date(from: endDate!) : start!.addingTimeInterval(60 * 60)
+
         let calendar = self.calendar(withName: name)
-        let reminder = EKReminder(eventStore: Store)
-        reminder.calendar = calendar
-        reminder.title = string
-        reminder.dueDateComponents = dueDate
+        let event = EKEvent(eventStore: Store)
+
+        event.calendar = calendar
+        event.title = string
+        event.startDate = start
+        event.endDate = end
+        if (location != nil)
+        {
+            event.structuredLocation = EKStructuredLocation(title: location!)
+        }
 
         do {
-            try Store.save(reminder, commit: true)
-            print("Added '\(reminder.title!)' to '\(calendar.title)'")
+            try Store.save(event, span: .thisEvent, commit: true)
+            print("Added '\(event.title!)' to '\(calendar.title)'")
         } catch let error {
-            print("Failed to save reminder with error: \(error)")
+            print("Failed to save event with error: \(error)")
             exit(1)
-        }
-    }
-
-    // MARK: - Private functions
-
-    private func reminders(onCalendar calendar: EKCalendar,
-                                      completion: @escaping (_ reminders: [EKReminder]) -> Void)
-    {
-        let nextFiveDays = Date(timeIntervalSinceNow: +3*24*3600)
-        let predicate = Store.predicateForIncompleteReminders(withDueDateStarting: nil, ending: nextFiveDays, calendars: [calendar])
-        Store.fetchReminders(matching: predicate) { reminders in
-            var reminders = reminders?
-                .filter { $0.dueDateComponents != nil }
-
-            reminders = reminders!.sorted(by: { $0.dueDateComponents!.date ?? Date() < $1.dueDateComponents!.date ?? Date() })
-
-            completion(reminders ?? [])
         }
     }
 

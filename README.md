@@ -1,43 +1,31 @@
 # reminders-cli
 
-A modified version of [reminders-cli](https://github.com/keith/reminders-cli) for use with [Reminders Alfred Workflow](https://github.com/rknightuk/alfred-workflows/tree/main/workflows/reminders)
+A modified version of [reminders-cli](https://github.com/keith/reminders-cli) for use with [Calendar Events Alfred Workflow](https://github.com/rknightuk/alfred-workflows/tree/main/workflows/calendar-events)
 
 ## Usage:
 
-#### Show all lists
+#### Show all calendars
 
 ```
-$ reminders show-lists
-Soon
-Eventually
+$ reminders calendars
+Home
+Work
 ```
 
-#### Show reminders on a specific list
+#### Show events
 
 ```
 $ reminders show Soon
-0 Write README
-1 Ship reminders-cli
+All Day Thing
+Lunch
 ```
 
-#### Complete an item on a list
+#### Add event
 
 ```
-$ reminders complete Soon 0
-Completed 'Write README'
-$ reminders show Soon
-0 Ship reminders-cli
-```
-
-#### Add a reminder to a list
-
-```
-$ reminders add Soon Contribute to open source
-$ reminders add Soon Go to the grocery store --due-date "tomorrow 9am"
-$ reminders show Soon
-0: Ship reminders-cli
-1: Contribute to open source
-2: Go to the grocery store (in 10 hours)
+$ reminders add "Home" "An event" -s "2021-07-22 12:00"
+$ reminders add "Home" "An event" -s "2021-07-22 12:00" -e "2021-07-22 13:15"
+$ reminders add "Home" "An event" -s "2021-07-22 12:00" -e "2021-07-22 13:15" -l "Star Labs"
 ```
 
 ### Installation
@@ -49,7 +37,7 @@ You don't want this, I promise you. It's only useful for the Alfred workflow.
 This requires a recent Xcode installation.
 
 ```
-$ cd reminders-cli
+$ cd alfred-calendar-helper
 $ make build-release
 $ cp .build/release/reminders /usr/local/bin/reminders
 ```

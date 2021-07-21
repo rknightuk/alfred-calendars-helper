@@ -30,31 +30,43 @@ private struct Add: ParsableCommand {
         abstract: "Add a event to a calendar")
 
     @Argument(
-        help: "The list to add to, see 'show-lists' for names")
+        help: "The calendar to add to, see 'calendars' for names")
     var listName: String
 
     @Argument(
-        parsing: .remaining,
-        help: "The reminder contents")
-    var reminder: [String]
+        help: "The event title")
+    var event: [String]
 
     @Option(
         name: .shortAndLong,
-        help: "The date the reminder is due")
-    var dueDate: DateComponents?
+        help: "The date the event starts")
+    var startDate: String
+
+    @Option(
+        name: .shortAndLong,
+        help: "The date the event ends")
+    var endDate: String?
+
+    @Option(
+        name: .shortAndLong,
+        help: "The location of the event")
+    var location: String?
 
     func run() {
-        reminders.addReminder(
-            string: self.reminder.joined(separator: " "),
+        reminders.addEvent(
+            string: self.event.joined(separator: " "),
             toListNamed: self.listName,
-            dueDate: self.dueDate)
+            startDate: self.startDate,
+            endDate: self.endDate,
+            location: self.location
+        )
     }
 }
 
 public struct CLI: ParsableCommand {
     public static let configuration = CommandConfiguration(
-        commandName: "reminders",
-        abstract: "Interact with macOS Reminders from the command line",
+        commandName: "events",
+        abstract: "Interact with macOS calendars from the command line",
         subcommands: [
             Add.self,
             Events.self,
