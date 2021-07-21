@@ -1,4 +1,4 @@
-# reminders-cli
+# alfred-calendars-helper
 
 A modified version of [reminders-cli](https://github.com/keith/reminders-cli) for use with [Calendar Events Alfred Workflow](https://github.com/rknightuk/alfred-workflows/tree/main/workflows/calendar-events)
 
