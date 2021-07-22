@@ -13,8 +13,9 @@ private func formattedDueDateEvent(from date: Date) -> String? {
 private func format(_ event: EKEvent) -> String {
     let start = formattedDueDateEvent(from: event.startDate).map { "\($0)" } ?? ""
     let end = formattedDueDateEvent(from: event.endDate).map { "\($0)" } ?? ""
-    let location = event.structuredLocation == nil ? "" : event.structuredLocation!.title!
-    return "{ \"id\": \"\(event.eventIdentifier!)\", \"title\": \"\(event.title ?? "?")\", \"start\": \"\(start)\", \"end\": \"\(end)\", \"allDay\": \"\(event.isAllDay)\", \"location\": \"\(location)\", \"confirmed\": \"\(event.status == EKEventStatus.none || event.status == EKEventStatus.confirmed)\" }"
+    var location = event.structuredLocation == nil ? "" : event.structuredLocation!.title!
+    location = location.replacingOccurrences(of: "\n", with: ", ")
+    return "{ \"id\": \"\(event.eventIdentifier!)\", \"title\": \"\(event.title ?? "?")\", \"start\": \"\(start)\", \"end\": \"\(end)\", \"allDay\": \"\(event.isAllDay)\", \"location\": \"\(location)\", \"calendar\": \"\(event.calendar.title)\", \"confirmed\": \"\(event.status == EKEventStatus.none || event.status == EKEventStatus.confirmed)\" }"
 }
 
 public final class Reminders {
