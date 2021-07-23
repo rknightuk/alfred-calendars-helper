@@ -38,15 +38,17 @@ public final class Reminders {
         }
     }
 
-    func events(listName: String?) {
+    func events(listName: String?, limit: Int?) {
         let calendar = listName != nil ? self.calendar(withName: listName!) : nil
         let semaphore = DispatchSemaphore(value: 0)
 
         let now = Date()
-        let nextFiveDays = Date(timeIntervalSinceNow: +5*24*3600)
+
+        let days:TimeInterval = Double((limit == nil ? 5 : limit!)*24*3600)
+        let next = Date(timeIntervalSinceNow: +days)
         let calendars = calendar != nil ? [calendar!] : []
 
-        let predicate = Store.predicateForEvents(withStart: now, end: nextFiveDays, calendars: calendars)
+        let predicate = Store.predicateForEvents(withStart: now, end: next, calendars: calendars)
 
         let events = Store.events(matching: predicate)
 

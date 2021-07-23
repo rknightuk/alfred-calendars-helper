@@ -11,8 +11,13 @@ private struct Events: ParsableCommand {
         help: "The calendar to show events from")
     var listName: String?
 
+    @Option(
+        name: .shortAndLong,
+        help: "The amount of days to show")
+    var limit: Int?
+
     func run() {
-        reminders.events(listName: self.listName)
+        reminders.events(listName: self.listName, limit: self.limit)
     }
 }
 
